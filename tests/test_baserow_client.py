@@ -12,7 +12,7 @@ class TestBaseRowClient(unittest.TestCase):
 
     def tearDown(self):
         """Tear down test fixtures, if any."""
-    
+
     def test_001_missing_token(self):
         with self.assertRaises(NoTokenFound):
             BaseRowClient()

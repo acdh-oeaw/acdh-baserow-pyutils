@@ -28,7 +28,7 @@ class BaseRowClient():
             url = result['next']
             for x in result['results']:
                 yield x
-    
+
     def __init__(
         self,
         baserow_url="https://baserow.acdh-dev.oeaw.ac.at/api/database/rows/table/",

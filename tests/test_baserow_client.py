@@ -5,6 +5,10 @@ from acdh_baserow_utils import BaseRowClient
 from acdh_baserow_utils.utils import BaseRowUtilsError
 
 
+TABLE_ID = "100948"
+BR_TOKEN = os.environ.get('BASEROW_TOKEN')
+
+
 class TestBaseRowClient(unittest.TestCase):
     """Tests for `acdh_baserow_utils` package."""
 
@@ -39,6 +43,11 @@ class TestBaseRowClient(unittest.TestCase):
 
         with self.assertRaises(BaseRowUtilsError):
             BaseRowClient()
+
+    def test_004_iterate_rows(self):
+        br_client = BaseRowClient(br_table_id=TABLE_ID)
+        hansi = [x for x in br_client.yield_rows()]
+        self.assertTrue('id' in hansi[0].keys())
 
     def test_999_missing_token(self):
         os.environ['BASEROW_TOKEN'] = 'NOT_SET'

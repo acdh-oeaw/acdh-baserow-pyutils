@@ -7,6 +7,8 @@ jobs:
   test:
     name: Test Application
     runs-on: ubuntu-latest
+    env:
+      BASEROW_TOKEN: ${{secrets.BASEROW_TOKEN}}
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.8

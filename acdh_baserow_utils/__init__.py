@@ -1,13 +1,19 @@
 import os
 import requests
 
-from .utils import NoTokenFound
+from .utils import BaseRowUtilsError
 
 
 class BaseRowClient():
 
+    def url_fixer(self, url):
+        if url.endswith('/'):
+            return url
+        else:
+            return f"{url}/"
+
     def yield_rows(self, table_id, token, filters={}):
-        url = f"{self.baserow_url}{table_id}/?user_field_names=true"
+        url = f"{self.br_url}{table_id}/?user_field_names=true"
         if filters:
             for key, value in filters.items():
                 url += f"&{key}={value}"
@@ -31,18 +37,21 @@ class BaseRowClient():
 
     def __init__(
         self,
-        baserow_url="https://baserow.acdh-dev.oeaw.ac.at/api/database/rows/table/",
-        baserow_token=None
+        br_table_id=None,
+        br_base_url="https://api.baserow.io/api/",
+        br_token=None
     ):
-
-        if baserow_token is None:
-            self.baserow_token = os.environ.get('BASEROW_TOKEN', None)
+        if br_table_id is None:
+            raise BaseRowUtilsError(msg="No Table-ID is set")
         else:
-            self.baserow_token = baserow_token
-        if self.baserow_token is None:
-            raise NoTokenFound
+            self.br_table_id = br_table_id
 
-        if baserow_url.endswith('/'):
-            self.baserow_url = baserow_url
+        if br_token is None:
+            self.br_token = os.environ.get('br_TOKEN', 'NOT_SET')
         else:
-            self.baserow_url = f"{baserow_url}/"
+            self.br_token = br_token
+        if self.br_token is None or self.br_token == 'NOT_SET':
+            raise BaseRowUtilsError
+
+        self.br_base_url = self.url_fixer(br_base_url)
+        self.br_rows_url = f"{self.br_base_url}database/rows/table/{self.br_table_id}/"

@@ -131,3 +131,4 @@ secret.env
 *.ipynb
 Untitle*.ipynb
 hansi.csv
+.vscode/settings.json

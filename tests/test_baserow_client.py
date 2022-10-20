@@ -22,31 +22,18 @@ class TestBaseRowClient(unittest.TestCase):
 
         br_base_url = 'whatever'
         br_client = BaseRowClient(
-            br_base_url=br_base_url, br_token=br_base_url, br_table_id='1234'
+            br_base_url=br_base_url
         )
         self.assertEqual('/', br_client.br_base_url[-1])
         br_base_url = 'whatever/'
         br_client = BaseRowClient(
-            br_base_url=br_base_url, br_token=br_base_url, br_table_id='1234'
+            br_base_url=br_base_url, br_token=br_base_url
         )
         self.assertEqual('/', br_client.br_base_url[-1])
 
-    def test_003_check_table_id(self):
-
-        br_base_url = 'whatever'
-        br_client = BaseRowClient(
-            br_base_url=br_base_url, br_token=br_base_url, br_table_id='1234'
-        )
-        self.assertTrue('1234' in br_client.br_rows_url)
-
-    def test_003_check_missing_table_id(self):
-
-        with self.assertRaises(BaseRowUtilsError):
-            BaseRowClient()
-
     def test_004_iterate_rows(self):
-        br_client = BaseRowClient(br_table_id=TABLE_ID)
-        hansi = [x for x in br_client.yield_rows()]
+        br_client = BaseRowClient()
+        hansi = [x for x in br_client.yield_rows(br_table_id=TABLE_ID)]
         self.assertTrue('id' in hansi[0].keys())
 
     def test_999_missing_token(self):

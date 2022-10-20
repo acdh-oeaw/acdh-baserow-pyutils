@@ -11,8 +11,12 @@ class BaseRowClient:
         else:
             return f"{url}/"
 
-    def yield_rows(self, filters={}):
-        url = f"{self.br_rows_url}?user_field_names=true"
+    def yield_rows(self, br_table_id=None, filters={}):
+        if br_table_id is None:
+            raise BaseRowUtilsError(msg="No Table-ID is set")
+        else:
+            br_rows_url = f"{self.br_base_url}database/rows/table/{br_table_id}/"
+        url = f"{br_rows_url}?user_field_names=true"
         if filters:
             for key, value in filters.items():
                 url += f"&{key}={value}"
@@ -30,13 +34,8 @@ class BaseRowClient:
                 yield x
 
     def __init__(
-        self, br_table_id=None, br_base_url="https://api.baserow.io/api/", br_token=None
+        self, br_base_url="https://api.baserow.io/api/", br_token=None
     ):
-        if br_table_id is None:
-            raise BaseRowUtilsError(msg="No Table-ID is set")
-        else:
-            self.br_table_id = br_table_id
-
         if br_token is None:
             self.br_token = os.environ.get("BASEROW_TOKEN", "NOT_SET")
         else:
@@ -47,4 +46,3 @@ class BaseRowClient:
         self.headers = {"Authorization": f"Token {self.br_token}"}
 
         self.br_base_url = self.url_fixer(br_base_url)
-        self.br_rows_url = f"{self.br_base_url}database/rows/table/{self.br_table_id}/"

@@ -38,9 +38,8 @@ class TestBaseRowClient(unittest.TestCase):
 
     def test_004_dump_data(self):
         OUT_DIR = "out"
-        shutil.rmtree(OUT_DIR)
         os.makedirs(OUT_DIR, exist_ok=True)
         files = BR_CLIENT.dump_tables_as_json(DATABASE_ID, folder_name=OUT_DIR)
-        file_list = glob.glob("./out/*.json")
+        file_list = glob.glob(f"{OUT_DIR}/*.json")
         self.assertEqual(len(files), len(file_list))
         shutil.rmtree(OUT_DIR)

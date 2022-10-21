@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BASEROW_TOKEN: ${{secrets.BASEROW_TOKEN}}
+      BASEROW_USER: ${{secrets.BASEROW_USER}}
+      BASEROW_PW: ${{secrets.BASEROW_PW}}
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.8

@@ -14,7 +14,7 @@ a python client for baserow
 
 Have a look into `tests/test_baserow_client.py`
 
-### dump all tables of database into JSON-FILES
+### dump all tables of a given database into JSON-FILES
 
 ```python
 import os

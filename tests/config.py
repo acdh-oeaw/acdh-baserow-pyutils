@@ -5,6 +5,8 @@ BASEROW_TABLE_MAPPING = {
 }
 BASEROW_API = "https://baserow.acdh-dev.oeaw.ac.at/api/database/rows/table/"
 
+BASEROW_DB_ID = "41426"
+
 PERSON_IN_USE_FILTER = {
     "filter__field_374371__boolean": "true"
 }

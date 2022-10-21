@@ -14,6 +14,11 @@ class BaseRowClient:
         else:
             return f"{url}/"
 
+    def list_tables(self, br_database_id):
+        db_url = f"{self.br_base_url}database/tables/database/{br_database_id}/"
+        r = requests.get(url=db_url, headers={'Authorization': f'JWT {self.br_jwt_token}'})
+        return r.json()
+
     def yield_rows(self, br_table_id, filters={}):
         br_rows_url = f"{self.br_base_url}database/rows/table/{br_table_id}/"
         url = f"{br_rows_url}?user_field_names=true"

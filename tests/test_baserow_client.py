@@ -2,11 +2,13 @@ import unittest
 import os
 
 from acdh_baserow_utils import BaseRowClient
-from acdh_baserow_utils.utils import BaseRowUtilsError
 
 
 TABLE_ID = "100948"
-BR_TOKEN = os.environ.get('BASEROW_TOKEN')
+BASEROW_USER = os.environ.get('BASEROW_USER')
+BASEROW_PW = os.environ.get('BASEROW_PW')
+BASEROW_TOKEN = os.environ.get('BASEROW_TOKEN')
+BR_CLIENT = BaseRowClient(BASEROW_USER, BASEROW_PW, BASEROW_TOKEN)
 
 
 class TestBaseRowClient(unittest.TestCase):
@@ -18,25 +20,6 @@ class TestBaseRowClient(unittest.TestCase):
     def tearDown(self):
         """Tear down test fixtures, if any."""
 
-    def test_002_trailing_slash_check(self):
-
-        br_base_url = 'whatever'
-        br_client = BaseRowClient(
-            br_base_url=br_base_url
-        )
-        self.assertEqual('/', br_client.br_base_url[-1])
-        br_base_url = 'whatever/'
-        br_client = BaseRowClient(
-            br_base_url=br_base_url, br_token=br_base_url
-        )
-        self.assertEqual('/', br_client.br_base_url[-1])
-
-    def test_004_iterate_rows(self):
-        br_client = BaseRowClient()
-        hansi = [x for x in br_client.yield_rows(br_table_id=TABLE_ID)]
+    def test_001_iterate_rows(self):
+        hansi = [x for x in BR_CLIENT.yield_rows(TABLE_ID)]
         self.assertTrue('id' in hansi[0].keys())
-
-    def test_999_missing_token(self):
-        os.environ['BASEROW_TOKEN'] = 'NOT_SET'
-        with self.assertRaises(BaseRowUtilsError):
-            BaseRowClient(br_token=None)

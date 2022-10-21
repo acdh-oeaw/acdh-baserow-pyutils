@@ -1,3 +1,5 @@
+import json
+import os
 import requests
 
 
@@ -37,6 +39,19 @@ class BaseRowClient:
             url = result["next"]
             for x in result["results"]:
                 yield x
+
+    def dump_tables_as_json(self, br_table_id, folder_name=None):
+        tables = self.list_tables(br_table_id)
+        file_names = []
+        for x in tables:
+            data = [x for x in self.yield_rows(f"{x['id']}")]
+            f_name = f"{x['name']}.json"
+            if folder_name is not None:
+                f_name = os.path.join(folder_name, f_name)
+            with open(f_name, "w") as f:
+                json.dump(data, f, ensure_ascii=False)
+            file_names.append(f_name)
+        return file_names
 
     def __init__(
         self,

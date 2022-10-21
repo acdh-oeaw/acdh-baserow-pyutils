@@ -3,7 +3,7 @@ import os
 import shutil
 import glob
 
-from acdh_baserow_utils import BaseRowClient
+from acdh_baserow_pyutils import BaseRowClient
 
 
 TABLE_ID = "100948"

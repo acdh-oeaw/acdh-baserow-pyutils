@@ -5,6 +5,12 @@ from .utils import BaseRowUtilsError
 
 
 class BaseRowClient:
+    def get_jwt_token(self):
+        url = f"{self.br_base_url}user/token-auth/"
+        payload = {"password": self.br_pw, "username": self.br_user}
+        r = requests.post(url=url, json=payload)
+        return r.json()["token"]
+
     def url_fixer(self, url):
         if url.endswith("/"):
             return url
@@ -34,7 +40,11 @@ class BaseRowClient:
                 yield x
 
     def __init__(
-        self, br_base_url="https://api.baserow.io/api/", br_token=None
+        self,
+        br_base_url="https://api.baserow.io/api/",
+        br_token=None,
+        br_user=None,
+        br_pw=None,
     ):
         if br_token is None:
             self.br_token = os.environ.get("BASEROW_TOKEN", "NOT_SET")
@@ -42,7 +52,8 @@ class BaseRowClient:
             self.br_token = br_token
         if self.br_token is None or self.br_token == "NOT_SET":
             raise BaseRowUtilsError
-
-        self.headers = {"Authorization": f"Token {self.br_token}"}
-
+        self.br_user = br_user
+        self.br_pw = br_pw
         self.br_base_url = self.url_fixer(br_base_url)
+        self.br_jwt_token = self.get_jwt_token()
+        self.headers = {"Authorization": f"Token {self.br_token}"}

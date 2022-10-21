@@ -8,7 +8,9 @@ with open("README.md") as readme_file:
     readme = readme_file.read()
 
 
-requirements = ["pandas>=1.4.0,<2", "requests>=2.20.0,<3"]
+requirements = [
+    "requests>=2.20.0,<3",
+]
 
 setup_requirements = []
 

@@ -25,7 +25,7 @@ class TestBaseRowClient(unittest.TestCase):
     def test_001_iterate_rows(self):
         hansi = [x for x in BR_CLIENT.yield_rows(TABLE_ID)]
         self.assertTrue('id' in hansi[0].keys())
-    
+
     def test_002_list_tables(self):
         tables = BR_CLIENT.list_tables(DATABASE_ID)
         self.assertEqual(len(tables), 3)

@@ -40,7 +40,7 @@ class BaseRowClient:
             for x in result["results"]:
                 yield x
 
-    def dump_tables_as_json(self, br_table_id, folder_name=None):
+    def dump_tables_as_json(self, br_table_id, folder_name=None, indent=0):
         tables = self.list_tables(br_table_id)
         file_names = []
         for x in tables:
@@ -49,7 +49,10 @@ class BaseRowClient:
             if folder_name is not None:
                 f_name = os.path.join(folder_name, f_name)
             with open(f_name, "w") as f:
-                json.dump(data, f, ensure_ascii=False)
+                if indent:
+                    json.dump(data, f, ensure_ascii=False, indent=indent)
+                else:
+                    json.dump(data, f, ensure_ascii=False)
             file_names.append(f_name)
         return file_names
 

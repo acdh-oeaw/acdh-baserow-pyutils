@@ -43,3 +43,13 @@ class TestBaseRowClient(unittest.TestCase):
         file_list = glob.glob(f"{OUT_DIR}/*.json")
         self.assertEqual(len(files), len(file_list))
         shutil.rmtree(OUT_DIR)
+
+    def test_005_dump_data_with_indent(self):
+        OUT_DIR = "out"
+        os.makedirs(OUT_DIR, exist_ok=True)
+        files = BR_CLIENT.dump_tables_as_json(DATABASE_ID, folder_name=OUT_DIR, indent=4)
+        for file in files:
+            with open(file, 'r') as fp:
+                line_count = len(fp.readlines())
+                self.assertTrue(line_count > 1)
+        shutil.rmtree(OUT_DIR)

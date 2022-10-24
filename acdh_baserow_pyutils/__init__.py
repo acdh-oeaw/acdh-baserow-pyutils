@@ -44,7 +44,7 @@ class BaseRowClient:
         tables = self.list_tables(br_table_id)
         file_names = []
         for x in tables:
-            data = [x for x in self.yield_rows(f"{x['id']}")]
+            data = {x['id']: x for x in self.yield_rows(f"{x['id']}")}
             f_name = f"{x['name']}.json"
             if folder_name is not None:
                 f_name = os.path.join(folder_name, f_name)

@@ -10,6 +10,7 @@ with open("README.md") as readme_file:
 
 requirements = [
     "requests>=2.20.0,<3",
+    "acdh-id-reconciler>=0.6,<1",
 ]
 
 setup_requirements = []

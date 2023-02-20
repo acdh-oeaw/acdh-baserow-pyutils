@@ -53,3 +53,8 @@ class TestBaseRowClient(unittest.TestCase):
                 line_count = len(fp.readlines())
                 self.assertTrue(line_count > 1)
         shutil.rmtree(OUT_DIR)
+
+    def test_006_list_fields(self):
+        fields = BR_CLIENT.list_fields(TABLE_ID)
+        field = fields[0]
+        self.assertEqual(field["primary"], True)

@@ -20,7 +20,7 @@ class BaseRowClient:
         db_url = f"{self.br_base_url}database/tables/database/{br_database_id}/"
         r = requests.get(url=db_url, headers={'Authorization': f'JWT {self.br_jwt_token}'})
         return r.json()
-    
+
     def list_fields(self, br_table_id):
         url = f"{self.br_base_url}database/fields/table/{br_table_id}/"
         r = requests.get(url, headers={'Authorization': f'JWT {self.br_jwt_token}'})

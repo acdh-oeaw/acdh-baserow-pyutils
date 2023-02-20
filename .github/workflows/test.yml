@@ -12,11 +12,11 @@ jobs:
       BASEROW_USER: ${{secrets.BASEROW_USER}}
       BASEROW_PW: ${{secrets.BASEROW_PW}}
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v1
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.8
+        python-version: "3.10"
     - name: Install dependencies
       run: |
         pip install --upgrade --upgrade-strategy eager -r requirements_dev.txt
@@ -31,5 +31,5 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage.xml
-        fail_ci_if_error: true
+        fail_ci_if_error: false
         verbose: true

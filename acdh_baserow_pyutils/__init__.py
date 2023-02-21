@@ -26,6 +26,15 @@ class BaseRowClient:
         r = requests.get(url, headers={'Authorization': f'JWT {self.br_jwt_token}'})
         return r.json()
 
+    def search_rows(self, br_table_id, q, query_field="name", lookup_type="contains"):
+        url = f"{self.br_base_url}database/rows/table/{br_table_id}/?user_field_names=true&filter__{query_field}__{lookup_type}={q}"
+        print(url)
+        r = requests.get(
+            url,
+            headers={'Authorization': f'JWT {self.br_jwt_token}'}
+        )
+        return r.json()
+
     def yield_rows(self, br_table_id, filters={}):
         br_rows_url = f"{self.br_base_url}database/rows/table/{br_table_id}/"
         url = f"{br_rows_url}?user_field_names=true"

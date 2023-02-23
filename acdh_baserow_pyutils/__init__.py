@@ -30,8 +30,6 @@ class BaseRowClient:
 
     def search_rows(self, br_table_id, q, query_field_id, lookup_type="contains"):
         url = f"{self.br_base_url}database/rows/table/{br_table_id}/?user_field_names=true&filter__field_{query_field_id}__{lookup_type}={q}"  # noqa
-        print(self.br_jwt_token)
-        print(url)
         r = requests.get(url, headers={"Authorization": f"JWT {self.br_jwt_token}"})
         return r.json()
 

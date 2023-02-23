@@ -18,21 +18,21 @@ class BaseRowClient:
 
     def list_tables(self, br_database_id):
         db_url = f"{self.br_base_url}database/tables/database/{br_database_id}/"
-        r = requests.get(url=db_url, headers={'Authorization': f'JWT {self.br_jwt_token}'})
+        r = requests.get(
+            url=db_url, headers={"Authorization": f"JWT {self.br_jwt_token}"}
+        )
         return r.json()
 
     def list_fields(self, br_table_id):
         url = f"{self.br_base_url}database/fields/table/{br_table_id}/"
-        r = requests.get(url, headers={'Authorization': f'JWT {self.br_jwt_token}'})
+        r = requests.get(url, headers={"Authorization": f"JWT {self.br_jwt_token}"})
         return r.json()
 
-    def search_rows(self, br_table_id, q, query_field="name", lookup_type="contains"):
-        url = f"{self.br_base_url}database/rows/table/{br_table_id}/?user_field_names=true&filter__{query_field}__{lookup_type}={q}"
+    def search_rows(self, br_table_id, q, query_field_id, lookup_type="contains"):
+        url = f"{self.br_base_url}database/rows/table/{br_table_id}/?user_field_names=true&filter__field_{query_field_id}__{lookup_type}={q}"  # noqa
+        print(self.br_jwt_token)
         print(url)
-        r = requests.get(
-            url,
-            headers={'Authorization': f'JWT {self.br_jwt_token}'}
-        )
+        r = requests.get(url, headers={"Authorization": f"JWT {self.br_jwt_token}"})
         return r.json()
 
     def yield_rows(self, br_table_id, filters={}):
@@ -58,7 +58,7 @@ class BaseRowClient:
         tables = self.list_tables(br_table_id)
         file_names = []
         for x in tables:
-            data = {x['id']: x for x in self.yield_rows(f"{x['id']}")}
+            data = {x["id"]: x for x in self.yield_rows(f"{x['id']}")}
             f_name = f"{x['name']}.json"
             if folder_name is not None:
                 f_name = os.path.join(folder_name, f_name)
@@ -82,4 +82,7 @@ class BaseRowClient:
         self.br_token = br_token
         self.br_base_url = self.url_fixer(br_base_url)
         self.br_jwt_token = self.get_jwt_token()
-        self.headers = {"Authorization": f"Token {self.br_token}", "Content-Type": "application/json"}
+        self.headers = {
+            "Authorization": f"Token {self.br_token}",
+            "Content-Type": "application/json",
+        }

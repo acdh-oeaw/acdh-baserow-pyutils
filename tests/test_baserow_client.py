@@ -5,7 +5,7 @@ import glob
 import json
 
 from acdh_baserow_pyutils import BaseRowClient
-
+from .config import BASEROW_TABLE_MAPPING
 
 TABLE_ID = "100948"
 DATABASE_ID = "41426"
@@ -48,9 +48,11 @@ class TestBaseRowClient(unittest.TestCase):
     def test_005_dump_data_with_indent(self):
         OUT_DIR = "out"
         os.makedirs(OUT_DIR, exist_ok=True)
-        files = BR_CLIENT.dump_tables_as_json(DATABASE_ID, folder_name=OUT_DIR, indent=4)
+        files = BR_CLIENT.dump_tables_as_json(
+            DATABASE_ID, folder_name=OUT_DIR, indent=4
+        )
         for file in files:
-            with open(file, 'r') as fp:
+            with open(file, "r") as fp:
                 line_count = len(fp.readlines())
                 self.assertTrue(line_count > 1)
         shutil.rmtree(OUT_DIR)
@@ -64,8 +66,14 @@ class TestBaseRowClient(unittest.TestCase):
         q = "Susi"
         no_result = "Schnitzler"
         search_result = BR_CLIENT.search_rows(TABLE_ID, q, "631801")
-        with open("search.json", 'w') as f:
+        with open("search.json", "w") as f:
             json.dump(search_result, f)
         self.assertTrue(q in f"{search_result}")
         self.assertFalse(no_result in f"{search_result}")
         self.assertEqual(search_result["count"], 1)
+
+    def test_008_get_table_by_name(self):
+        place_table = BR_CLIENT.get_table_by_name(DATABASE_ID, "place")
+        self.assertEqual(place_table, BASEROW_TABLE_MAPPING["place"])
+        place_table = BR_CLIENT.get_table_by_name(DATABASE_ID, "asdf")
+        self.assertFalse(place_table)

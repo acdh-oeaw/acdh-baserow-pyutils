@@ -38,6 +38,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/acdh-oeaw/acdh-baserow-pyutils",
-    version="0.4.1",
+    version="0.5",
     zip_safe=False,
 )

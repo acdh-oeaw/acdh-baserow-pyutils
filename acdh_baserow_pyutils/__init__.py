@@ -23,6 +23,14 @@ class BaseRowClient:
         )
         return r.json()
 
+    def get_table_by_name(self, br_database_id, br_table_name):
+        tables = self.list_tables(br_database_id)
+        table_id = False
+        for x in tables:
+            if x["name"] == br_table_name:
+                table_id = str(x["id"])
+        return table_id
+
     def list_fields(self, br_table_id):
         url = f"{self.br_base_url}database/fields/table/{br_table_id}/"
         r = requests.get(url, headers={"Authorization": f"JWT {self.br_jwt_token}"})

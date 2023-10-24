@@ -76,6 +76,19 @@ class BaseRowClient:
             file_names.append(f_name)
         return file_names
 
+    def fetch_table_field_dict(self, br_db_id):
+        print(f"fetching table and field info for {br_db_id}")
+        br_tables = self.list_tables(br_db_id)
+        table_dict = {}
+        for x in br_tables:
+            field_dict = {}
+            table_dict[x["name"]] = x
+            for f in self.list_fields(x["id"]):
+                field_dict[f["name"]] = f
+            table_dict[x["name"]]["fields"] = field_dict
+        br_table_dict = table_dict
+        return br_table_dict
+
     def __init__(
         self,
         br_user,
@@ -95,16 +108,7 @@ class BaseRowClient:
         }
         if br_db_id:
             self.br_db_id = br_db_id
-            print(f"fetching table and field info for {self.br_db_id}")
-            self.br_tables = self.list_tables(self.br_db_id)
-            table_dict = {}
-            for x in self.br_tables:
-                field_dict = {}
-                table_dict[x["name"]] = x
-                for f in self.list_fields(x["id"]):
-                    field_dict[f["name"]] = f
-                table_dict[x["name"]]["fields"] = field_dict
-            self.br_table_dict = table_dict
+            self.br_table_dict = self.fetch_table_field_dict(self.br_db_id)
 
         else:
             self.br_db_id = None

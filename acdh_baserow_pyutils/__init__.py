@@ -89,6 +89,26 @@ class BaseRowClient:
         br_table_dict = table_dict
         return br_table_dict
 
+    def get_or_create(self, table_name, field_name, lookup_dict, q):
+        br_table_id = lookup_dict[table_name]["id"]
+        query_field_id = lookup_dict[table_name]["fields"][field_name]["id"]
+        match = self.search_rows(br_table_id, q, query_field_id, lookup_type="equal")
+        if match["count"] == 1:
+            object, created = match["results"][0]["id"], False
+        else:
+            create_url = f"{self.br_base_url}database/rows/table/{br_table_id}/?user_field_names=true"
+            item = {field_name: q}
+            r = requests.post(
+                create_url,
+                headers={
+                    "Authorization": f"Token {self.br_token}",
+                    "Content-Type": "application/json",
+                },
+                json=item,
+            )
+            object, created = r.json(), True
+        return object, created
+
     def __init__(
         self,
         br_user,

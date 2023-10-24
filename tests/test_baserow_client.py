@@ -14,6 +14,13 @@ BASEROW_USER = os.environ.get("BASEROW_USER")
 BASEROW_PW = os.environ.get("BASEROW_PW")
 BASEROW_TOKEN = os.environ.get("BASEROW_TOKEN")
 BR_CLIENT = BaseRowClient(BASEROW_USER, BASEROW_PW, BASEROW_TOKEN)
+BR_CLIENT_WITH_DB_ID = BaseRowClient(
+    BASEROW_USER, BASEROW_PW, BASEROW_TOKEN, br_db_id=DATABASE_ID
+)
+
+table_name = "person"
+field_name = "Name"
+q = "Hansi4ever"
 
 
 class TestBaseRowClient(unittest.TestCase):
@@ -80,8 +87,13 @@ class TestBaseRowClient(unittest.TestCase):
 
     def test_009_table_dict(self):
         field_name = "Name"
-        br_client = BaseRowClient(
-            BASEROW_USER, BASEROW_PW, BASEROW_TOKEN, br_db_id=DATABASE_ID
-        )
+        br_client = BR_CLIENT_WITH_DB_ID
         field_name_value = br_client.br_table_dict["person"]["fields"][field_name]
         self.assertEqual(field_name, field_name_value["name"])
+
+    def test_010_get_or_create(self):
+        br_client = BR_CLIENT_WITH_DB_ID
+        object, _ = br_client.get_or_create(
+            table_name, field_name, br_client.br_table_dict, q
+        )
+        self.assertTrue(object[field_name], q)

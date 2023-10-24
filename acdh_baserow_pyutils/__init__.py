@@ -94,7 +94,7 @@ class BaseRowClient:
         query_field_id = lookup_dict[table_name]["fields"][field_name]["id"]
         match = self.search_rows(br_table_id, q, query_field_id, lookup_type="equal")
         if match["count"] == 1:
-            object, created = match["results"][0]["id"], False
+            object, created = match["results"][0], False
         else:
             create_url = f"{self.br_base_url}database/rows/table/{br_table_id}/?user_field_names=true"
             item = {field_name: q}

@@ -82,6 +82,7 @@ class BaseRowClient:
         br_pw,
         br_token,
         br_base_url="https://api.baserow.io/api/",
+        br_db_id=None,
     ):
         self.br_user = br_user
         self.br_pw = br_pw
@@ -92,3 +93,19 @@ class BaseRowClient:
             "Authorization": f"Token {self.br_token}",
             "Content-Type": "application/json",
         }
+        if br_db_id:
+            self.br_db_id = br_db_id
+            print(f"fetching table and field info for {self.br_db_id}")
+            self.br_tables = self.list_tables(self.br_db_id)
+            table_dict = {}
+            for x in self.br_tables:
+                field_dict = {}
+                table_dict[x["name"]] = x
+                for f in self.list_fields(x["id"]):
+                    field_dict[f["name"]] = f
+                table_dict[x["name"]]["fields"] = field_dict
+            self.br_table_dict = table_dict
+
+        else:
+            self.br_db_id = None
+            self.br_table_dict = None

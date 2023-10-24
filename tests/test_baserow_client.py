@@ -77,3 +77,11 @@ class TestBaseRowClient(unittest.TestCase):
         self.assertEqual(place_table, BASEROW_TABLE_MAPPING["place"])
         place_table = BR_CLIENT.get_table_by_name(DATABASE_ID, "asdf")
         self.assertFalse(place_table)
+
+    def test_009_table_dict(self):
+        field_name = "Name"
+        br_client = BaseRowClient(
+            BASEROW_USER, BASEROW_PW, BASEROW_TOKEN, br_db_id=DATABASE_ID
+        )
+        field_name_value = br_client.br_table_dict["person"]["fields"][field_name]
+        self.assertEqual(field_name, field_name_value["name"])

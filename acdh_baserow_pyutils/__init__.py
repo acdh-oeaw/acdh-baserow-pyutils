@@ -172,10 +172,12 @@ class BaseRowClient:
         return object, created
 
     def validate_field_types(self, fields):
+        valid = True
         required_keys = ["name", "type"]
         for f in fields:
             for k in required_keys:
                 if k not in f.keys():
+                    valid = False
                     raise ValueError(f"missing required key: {k}")
         valid_types = [
             "text",
@@ -186,7 +188,6 @@ class BaseRowClient:
             "link_row",
             "formula",
         ]
-        valid = True
         for f in fields:
             if f["type"] not in valid_types:
                 valid = False

@@ -123,7 +123,7 @@ class BaseRowClient:
         else:
             object, deleted = {"error": r.status_code}, False
         return object, deleted
-    
+
     def create_table(self, table_name, fields=None):
         database_id = self.br_db_id
         url = f"{self.br_base_url}database/tables/database/{database_id}/"
@@ -144,7 +144,7 @@ class BaseRowClient:
         else:
             object, created = {"error": r.status_code}, False
         return object, created
-    
+
     def delete_fields(self, table_id, field_names):
         object, created = {"status": "no fields to delete"}, True
         for f in self.br_table_dict[table_id]["fields"]:
@@ -165,7 +165,7 @@ class BaseRowClient:
                     print(f"Error {r.status_code} with {table_id} in delete_fields")
                     object, created = {"error": r.status_code}, False
         return object, created
-    
+
     def create_table_fields(self, table_id, fields):
         url = f"{self.br_base_url}database/fields/table/{table_id}/"
         payload, valid = self.validate_field_types(fields)
@@ -185,7 +185,7 @@ class BaseRowClient:
                     object, created = {"error": r.status_code}, False
         else:
             object, created = {"error": "Field type schema wrong."}, valid
-        print(object["error"], "Visit https://api.baserow.io/api/redoc/#tag/Database-table-fields/operation/create_database_table_field to learn more.")
+        print(object["error"], "Visit https://api.baserow.io/api/redoc/ to learn more.")
         return object, created
 
     def validate_field_types(self, fields):
@@ -213,7 +213,7 @@ class BaseRowClient:
                 if "formula" not in f.keys():
                     valid = False
                     raise ValueError("formula field missing 'formula' key")
-                elif f["formula"] is not isinstance(f["formula"], str):
+                elif not isinstance(f["formula"], str):
                     valid = False
                     raise ValueError("formula field must be a string")
             if f["type"] == "link_row":
@@ -222,7 +222,7 @@ class BaseRowClient:
                     raise ValueError(
                         "link_row field missing 'link_row_table_id' key"
                     )
-                elif f["link_row_table_id"] is not isinstance(
+                elif not isinstance(
                     f["link_row_table_id"], int
                 ):
                     valid = False

@@ -97,7 +97,7 @@ class TestBaseRowClient(unittest.TestCase):
             table_name, field_name, br_client.br_table_dict, q
         )
         self.assertTrue(object[field_name], q)
-    
+
     def test_011_create_field(self):
         br_client = BR_CLIENT_WITH_DB_ID
         table_name = "test_table"

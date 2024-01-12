@@ -195,7 +195,7 @@ class BaseRowClient:
             for k in required_keys:
                 if k not in f.keys():
                     valid = False
-                    raise ValueError(f"missing required key: {k}")
+                    raise KeyError(f"missing required key: {k}")
         valid_types = [
             "text",
             "long_text",
@@ -208,18 +208,18 @@ class BaseRowClient:
         for f in br_table_fields:
             if f["type"] not in valid_types:
                 valid = False
-                raise ValueError(f"invalid field type: {f['type']}")
+                raise KeyError(f"invalid field type: {f['type']}")
             if f["type"] == "formula":
                 if "formula" not in f.keys():
                     valid = False
-                    raise ValueError("formula field missing 'formula' key")
+                    raise KeyError("formula field missing 'formula' key")
                 elif not isinstance(f["formula"], str):
                     valid = False
                     raise ValueError("formula field must be a string")
             if f["type"] == "link_row":
                 if "link_row_table_id" not in f.keys():
                     valid = False
-                    raise ValueError(
+                    raise KeyError(
                         "link_row field missing 'link_row_table_id' key"
                     )
                 elif not isinstance(

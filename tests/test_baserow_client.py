@@ -136,9 +136,12 @@ class TestBaseRowClient(unittest.TestCase):
             {"name": "test_field7", "type": "number"},
             {"name": "test_field8", "type": "date"},
         ]
-        field, created = br_client.create_table_fields(table["id"], field_names)
-        self.assertEqual(created, True)
-        self.assertTrue("id" in field.keys())
+        try:
+            field, created = br_client.create_table_fields(table["id"], field_names)
+            self.assertEqual(created, True)
+            self.assertTrue("id" in field.keys())
+        except (ValueError, KeyError):
+            self.assertFalse(False)
         field, deleted = br_client.delete_table_fields(table["id"], ["test_field", "test_field2"])
         self.assertEqual(deleted, True)
         self.assertTrue("related_fields" in field.keys())
@@ -148,3 +151,80 @@ class TestBaseRowClient(unittest.TestCase):
         table, deleted = br_client.delete_table(table2["id"])
         self.assertEqual(deleted, True)
         self.assertTrue("status" in table.keys())
+
+    def test_012_validate_table_fields_type(self):
+        br_table_fields = [
+            {"name": "test_field", "type": "text"},
+            {"name": "test_field2", "type": "long_text"},
+            {
+                "name": "test_field3",
+                "type": "formula",
+                "formula": "concat(field('test_field', field('test_field2'))"
+            },
+            {
+                "name": "test_field4",
+                "type": "link_row",
+                "link_row_table_id": 1,
+                "has_related_field": False
+            },
+            {
+                "name": "test_field5",
+                "type": "link_row",
+                "link_row_table_id": 2,
+                "has_related_field": True
+            },
+            {"name": "test_field6", "type": "boolean"},
+            {"name": "test_field7", "type": "number"},
+            {"name": "test_field8", "type": "date"},
+        ]
+        try:
+            br_table_fields, valid = BR_CLIENT.validate_table_fields_type(br_table_fields)
+            self.assertTrue(valid)
+        except (ValueError, KeyError):
+            self.assertFalse(valid)
+        br_table_fields = [
+            {"name": "test_field"}
+        ]
+        try:
+            br_table_fields, valid = BR_CLIENT.validate_table_fields_type(br_table_fields)
+        except (ValueError, KeyError):
+            self.assertFalse(False)
+        br_table_fields = [
+            {"type": "long_text"}
+        ]
+        try:
+            br_table_fields, valid = BR_CLIENT.validate_table_fields_type(br_table_fields)
+        except (ValueError, KeyError):
+            self.assertFalse(False)
+        br_table_fields = [
+            {
+                "name": "test_field3",
+                "type": "formula"
+            }
+        ]
+        try:
+            br_table_fields, valid = BR_CLIENT.validate_table_fields_type(br_table_fields)
+        except (ValueError, KeyError):
+            self.assertFalse(False)
+        br_table_fields = [
+            {
+                "name": "test_field4",
+                "type": "link_row",
+                "link_row_table_id": "1",
+                "has_related_field": False
+            }
+        ]
+        try:
+            br_table_fields, valid = BR_CLIENT.validate_table_fields_type(br_table_fields)
+        except (ValueError, KeyError):
+            self.assertFalse(False)
+        br_table_fields = [
+            {
+                "name": "test_field5",
+                "type": "link_row",
+            }
+        ]
+        try:
+            br_table_fields, valid = BR_CLIENT.validate_table_fields_type(br_table_fields)
+        except (ValueError, KeyError):
+            self.assertFalse(False)

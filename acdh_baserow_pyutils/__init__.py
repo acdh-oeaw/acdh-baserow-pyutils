@@ -108,6 +108,42 @@ class BaseRowClient:
             )
             object, created = r.json(), True
         return object, created
+
+    def delete_table(self, table_id):
+        url = f"{self.br_base_url}database/tables/{table_id}"
+        r = requests.delete(
+            url,
+            headers={
+                "Authorization": f"JWT {self.br_jwt_token}",
+                "Content-Type": "application/json"
+            },
+        )
+        if r.status_code == 204:
+            object, deleted = {"status": f"table {table_id} deleted"}, True
+        else:
+            object, deleted = {"error": r.status_code}, False
+        return object, deleted
+    
+    def create_table(self, table_name, fields=None):
+        database_id = self.br_db_id
+        url = f"{self.br_base_url}database/tables/database/{database_id}/"
+        payload = {"name": table_name}
+        if fields is not None:
+            payload["data"] = fields
+            payload["first_row_header"] = True
+        r = requests.post(
+            url=url,
+            headers={
+                "Authorization": f"JWT {self.br_jwt_token}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+        )
+        if r.status_code == 200:
+            object, created = r.json(), True
+        else:
+            object, created = {"error": r.status_code}, False
+        return object, created
     
     def delete_fields(self, table_id, field_names):
         object, created = {"status": "no fields to delete"}, True
@@ -130,42 +166,23 @@ class BaseRowClient:
                     object, created = {"error": r.status_code}, False
         return object, created
     
-    def create_table(self, database_id, table_name, fields=None):
-        url = f"{self.br_base_url}database/tables/database/{database_id}/"
-        payload = {"name": table_name}
-        if fields is not None:
-            payload["data"] = fields
-            payload["first_row_header"] = True
-        r = requests.post(
-            url=url,
-            headers={
-                "Authorization": f"JWT {self.br_jwt_token}",
-                "Content-Type": "application/json",
-            },
-            json=payload,
-        )
-        if r.status_code == 200:
-            object, created = r.json(), True
-        else:
-            object, created = {"error": r.status_code}, False
-        return object, created
-    
     def create_table_fields(self, table_id, fields):
         url = f"{self.br_base_url}database/fields/table/{table_id}/"
         payload, valid = self.validate_field_types(fields)
         if valid:
-            r = requests.post(
-                url=url,
-                headers={
-                    "Authorization": f"JWT {self.br_jwt_token}",
-                    "Content-Type": "application/json",
-                },
-                json=payload,
-            )
-            if r.status_code == 200:
-                object, created = r.json(), True
-            else:
-                object, created = {"error": r.status_code}, False
+            for field in payload:
+                r = requests.post(
+                    url=url,
+                    headers={
+                        "Authorization": f"JWT {self.br_jwt_token}",
+                        "Content-Type": "application/json",
+                    },
+                    json=field,
+                )
+                if r.status_code == 200:
+                    object, created = r.json(), True
+                else:
+                    object, created = {"error": r.status_code}, False
         else:
             object, created = {"error": "Field type schema wrong."}, valid
         print(object["error"], "Visit https://api.baserow.io/api/redoc/#tag/Database-table-fields/operation/create_database_table_field to learn more.")

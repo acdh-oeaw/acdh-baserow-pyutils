@@ -154,58 +154,32 @@ class TestBaseRowClient(unittest.TestCase):
 
     def test_012_validate_table_fields_type(self):
         br_table_fields = [
-            {"name": "test_field", "type": "text"},
-            {"name": "test_field2", "type": "long_text"},
-            {
-                "name": "test_field3",
-                "type": "formula",
-                "formula": "concat(field('test_field', field('test_field2'))"
-            },
-            {
-                "name": "test_field4",
-                "type": "link_row",
-                "link_row_table_id": 1,
-                "has_related_field": False
-            },
-            {
-                "name": "test_field5",
-                "type": "link_row",
-                "link_row_table_id": 2,
-                "has_related_field": True
-            },
-            {"name": "test_field6", "type": "boolean"},
-            {"name": "test_field7", "type": "number"},
-            {"name": "test_field8", "type": "date"},
-        ]
-        try:
-            br_table_fields, valid = BR_CLIENT.validate_table_fields_type(br_table_fields)
-            self.assertTrue(valid)
-        except (ValueError, KeyError):
-            self.assertFalse(False)
-        br_table_fields = [
             {"name": "test_field"}
         ]
-        try:
+        with self.assertRaises(KeyError):
             br_table_fields, valid = BR_CLIENT.validate_table_fields_type(br_table_fields)
-        except (ValueError, KeyError):
-            self.assertFalse(False)
         br_table_fields = [
             {"type": "long_text"}
         ]
-        try:
+        with self.assertRaises(KeyError):
             br_table_fields, valid = BR_CLIENT.validate_table_fields_type(br_table_fields)
-        except (ValueError, KeyError):
-            self.assertFalse(False)
         br_table_fields = [
             {
                 "name": "test_field3",
                 "type": "formula"
             }
         ]
-        try:
+        with self.assertRaises(KeyError):
             br_table_fields, valid = BR_CLIENT.validate_table_fields_type(br_table_fields)
-        except (ValueError, KeyError):
-            self.assertFalse(False)
+        br_table_fields = [
+            {
+                "name": "test_field3",
+                "type": "formula",
+                "formula": ["concat(field('test_field', field('test_field2'))"]
+            }
+        ]
+        with self.assertRaises(ValueError):
+            br_table_fields, valid = BR_CLIENT.validate_table_fields_type(br_table_fields)
         br_table_fields = [
             {
                 "name": "test_field4",
@@ -214,17 +188,13 @@ class TestBaseRowClient(unittest.TestCase):
                 "has_related_field": False
             }
         ]
-        try:
+        with self.assertRaises(ValueError):
             br_table_fields, valid = BR_CLIENT.validate_table_fields_type(br_table_fields)
-        except (ValueError, KeyError):
-            self.assertFalse(False)
         br_table_fields = [
             {
                 "name": "test_field5",
                 "type": "link_row",
             }
         ]
-        try:
+        with self.assertRaises(KeyError):
             br_table_fields, valid = BR_CLIENT.validate_table_fields_type(br_table_fields)
-        except (ValueError, KeyError):
-            self.assertFalse(False)

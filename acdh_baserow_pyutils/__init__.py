@@ -145,7 +145,7 @@ class BaseRowClient:
             object, created = {"error": r.status_code}, False
         return object, created
 
-    def delete_fields(self, br_table_id, field_names):
+    def delete_table_fields(self, br_table_id, field_names):
         object, deleted = {"status": "no fields to delete"}, True
         for f in self.list_fields(br_table_id):
             if f["name"] in field_names:
@@ -168,7 +168,7 @@ class BaseRowClient:
 
     def create_table_fields(self, br_table_id, br_table_fields):
         url = f"{self.br_base_url}database/fields/table/{br_table_id}/"
-        payload, valid = self.validate_field_types(br_table_fields)
+        payload, valid = self.validate_table_fields_type(br_table_fields)
         if valid:
             for field in payload:
                 r = requests.post(
@@ -188,7 +188,7 @@ class BaseRowClient:
             print(object["error"], "Visit https://api.baserow.io/api/redoc/ to learn more.")
         return object, created
 
-    def validate_field_types(self, br_table_fields):
+    def validate_table_fields_type(self, br_table_fields):
         valid = True
         required_keys = ["name", "type"]
         for f in br_table_fields:

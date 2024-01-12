@@ -139,7 +139,7 @@ class TestBaseRowClient(unittest.TestCase):
         field, created = br_client.create_table_fields(table["id"], field_names)
         self.assertEqual(created, True)
         self.assertTrue("id" in field.keys())
-        field, deleted = br_client.delete_fields(table["id"], ["test_field", "test_field2"])
+        field, deleted = br_client.delete_table_fields(table["id"], ["test_field", "test_field2"])
         self.assertEqual(deleted, True)
         self.assertTrue("related_fields" in field.keys())
         table, deleted = br_client.delete_table(table["id"])

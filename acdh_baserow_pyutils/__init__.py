@@ -145,9 +145,9 @@ class BaseRowClient:
             object, created = {"error": r.status_code}, False
         return object, created
 
-    def delete_fields(self, table_id, field_names):
+    def delete_fields(self, br_table_id, field_names):
         object, created = {"status": "no fields to delete"}, True
-        for f in self.br_table_dict[table_id]["fields"]:
+        for f in self.list_fields(br_table_id):
             if f["name"] in field_names:
                 print("Deleting field... ", f["name"], f["id"])
                 url = f"{self.br_base_url}database/fields/{f['id']}"
@@ -159,16 +159,16 @@ class BaseRowClient:
                     },
                 )
                 if r.status_code == 200:
-                    print(f"Deleted field {f['name']} with id: {f['id']} in {table_id}")
+                    print(f"Deleted field {f['name']} with id: {f['id']} in {br_table_id}")
                     object, created = r.json(), True
                 else:
-                    print(f"Error {r.status_code} with {table_id} in delete_fields")
+                    print(f"Error {r.status_code} with {br_table_id} in delete_fields")
                     object, created = {"error": r.status_code}, False
         return object, created
 
-    def create_table_fields(self, table_id, fields):
-        url = f"{self.br_base_url}database/fields/table/{table_id}/"
-        payload, valid = self.validate_field_types(fields)
+    def create_table_fields(self, br_table_id, br_table_fields):
+        url = f"{self.br_base_url}database/fields/table/{br_table_id}/"
+        payload, valid = self.validate_field_types(br_table_fields)
         if valid:
             for field in payload:
                 r = requests.post(
@@ -188,10 +188,10 @@ class BaseRowClient:
             print(object["error"], "Visit https://api.baserow.io/api/redoc/ to learn more.")
         return object, created
 
-    def validate_field_types(self, fields):
+    def validate_field_types(self, br_table_fields):
         valid = True
         required_keys = ["name", "type"]
-        for f in fields:
+        for f in br_table_fields:
             for k in required_keys:
                 if k not in f.keys():
                     valid = False
@@ -205,7 +205,7 @@ class BaseRowClient:
             "link_row",
             "formula",
         ]
-        for f in fields:
+        for f in br_table_fields:
             if f["type"] not in valid_types:
                 valid = False
                 raise ValueError(f"invalid field type: {f['type']}")
@@ -227,7 +227,7 @@ class BaseRowClient:
                 ):
                     valid = False
                     raise ValueError("link_row field must be a string")
-        return fields, valid
+        return br_table_fields, valid
 
     def __init__(
         self,

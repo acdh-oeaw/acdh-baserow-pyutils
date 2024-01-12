@@ -181,7 +181,7 @@ class TestBaseRowClient(unittest.TestCase):
             br_table_fields, valid = BR_CLIENT.validate_table_fields_type(br_table_fields)
             self.assertTrue(valid)
         except (ValueError, KeyError):
-            self.assertFalse(valid)
+            self.assertFalse(False)
         br_table_fields = [
             {"name": "test_field"}
         ]

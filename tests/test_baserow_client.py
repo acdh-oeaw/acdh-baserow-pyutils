@@ -98,7 +98,7 @@ class TestBaseRowClient(unittest.TestCase):
         )
         self.assertTrue(object[field_name], q)
 
-    def test_011_create_field(self):
+    def test_011_create_delete_tables_and_fields(self):
         br_client = BR_CLIENT_WITH_DB_ID
         table_name = "test_table"
         table, created = br_client.create_table(table_name)
@@ -139,15 +139,12 @@ class TestBaseRowClient(unittest.TestCase):
         field, created = br_client.create_table_fields(table["id"], field_names)
         self.assertEqual(created, True)
         self.assertTrue("id" in field.keys())
-        br_client_new = BaseRowClient(
-            BASEROW_USER, BASEROW_PW, BASEROW_TOKEN, br_db_id=DATABASE_ID
-        )
-        field, deleted = br_client_new.delete_fields(table["id"], ["test_field", "test_field2"])
+        field, deleted = br_client.delete_fields(table["id"], ["test_field", "test_field2"])
         self.assertEqual(deleted, True)
         self.assertTrue("related_fields" in field.keys())
-        table, deleted = br_client_new.delete_table(table["id"])
+        table, deleted = br_client.delete_table(table["id"])
         self.assertEqual(deleted, True)
         self.assertTrue("status" in table.keys())
-        table, deleted = br_client_new.delete_table(table2["id"])
+        table, deleted = br_client.delete_table(table2["id"])
         self.assertEqual(deleted, True)
         self.assertTrue("status" in table.keys())

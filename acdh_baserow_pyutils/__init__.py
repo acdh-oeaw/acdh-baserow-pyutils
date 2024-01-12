@@ -110,7 +110,7 @@ class BaseRowClient:
         return object, created
 
     def delete_table(self, table_id):
-        url = f"{self.br_base_url}database/tables/{table_id}"
+        url = f"{self.br_base_url}database/tables/{table_id}/"
         r = requests.delete(
             url,
             headers={
@@ -146,11 +146,11 @@ class BaseRowClient:
         return object, created
 
     def delete_fields(self, br_table_id, field_names):
-        object, created = {"status": "no fields to delete"}, True
+        object, deleted = {"status": "no fields to delete"}, True
         for f in self.list_fields(br_table_id):
             if f["name"] in field_names:
                 print("Deleting field... ", f["name"], f["id"])
-                url = f"{self.br_base_url}database/fields/{f['id']}"
+                url = f"{self.br_base_url}database/fields/{f['id']}/"
                 r = requests.delete(
                     url,
                     headers={
@@ -160,11 +160,11 @@ class BaseRowClient:
                 )
                 if r.status_code == 200:
                     print(f"Deleted field {f['name']} with id: {f['id']} in {br_table_id}")
-                    object, created = r.json(), True
+                    object, deleted = r.json(), True
                 else:
                     print(f"Error {r.status_code} with {br_table_id} in delete_fields")
-                    object, created = {"error": r.status_code}, False
-        return object, created
+                    object, deleted = {"error": r.status_code}, False
+        return object, deleted
 
     def create_table_fields(self, br_table_id, br_table_fields):
         url = f"{self.br_base_url}database/fields/table/{br_table_id}/"

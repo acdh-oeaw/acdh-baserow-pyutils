@@ -226,7 +226,7 @@ class BaseRowClient:
                     f["link_row_table_id"], int
                 ):
                     valid = False
-                    raise ValueError("link_row field must be a string")
+                    raise ValueError("link_row_table_id field must be a integer")
         return br_table_fields, valid
 
     def __init__(

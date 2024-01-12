@@ -38,7 +38,7 @@ class TestBaseRowClient(unittest.TestCase):
 
     def test_002_list_tables(self):
         tables = BR_CLIENT.list_tables(DATABASE_ID)
-        self.assertEqual(len(tables), 7)
+        self.assertEqual(len(tables), 9)
 
     def test_003_fix_url(self):
         url_fixer = BR_CLIENT.url_fixer("hansi")
@@ -139,12 +139,15 @@ class TestBaseRowClient(unittest.TestCase):
         field, created = br_client.create_table_fields(table["id"], field_names)
         self.assertEqual(created, True)
         self.assertTrue("id" in field.keys())
-        field, deleted = br_client.delete_fields(table["id"], ["test_field", "test_field2"])
+        br_client_new = BaseRowClient(
+            BASEROW_USER, BASEROW_PW, BASEROW_TOKEN, br_db_id=DATABASE_ID
+        )
+        field, deleted = br_client_new.delete_fields(table["id"], ["test_field", "test_field2"])
         self.assertEqual(deleted, True)
         self.assertTrue("related_fields" in field.keys())
-        table, deleted = br_client.delete_table(table["id"])
+        table, deleted = br_client_new.delete_table(table["id"])
         self.assertEqual(deleted, True)
         self.assertTrue("status" in table.keys())
-        table, deleted = br_client.delete_table(table2["id"])
+        table, deleted = br_client_new.delete_table(table2["id"])
         self.assertEqual(deleted, True)
         self.assertTrue("status" in table.keys())

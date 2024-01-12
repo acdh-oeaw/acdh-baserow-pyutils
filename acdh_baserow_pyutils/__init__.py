@@ -109,6 +109,126 @@ class BaseRowClient:
             object, created = r.json(), True
         return object, created
 
+    def delete_table(self, table_id):
+        url = f"{self.br_base_url}database/tables/{table_id}/"
+        r = requests.delete(
+            url,
+            headers={
+                "Authorization": f"JWT {self.br_jwt_token}",
+                "Content-Type": "application/json"
+            },
+        )
+        if r.status_code == 204:
+            object, deleted = {"status": f"table {table_id} deleted"}, True
+        else:
+            object, deleted = {"error": r.status_code}, False
+        return object, deleted
+
+    def create_table(self, table_name, fields=None):
+        database_id = self.br_db_id
+        url = f"{self.br_base_url}database/tables/database/{database_id}/"
+        payload = {"name": table_name}
+        if fields is not None:
+            payload["data"] = fields
+            payload["first_row_header"] = True
+        r = requests.post(
+            url=url,
+            headers={
+                "Authorization": f"JWT {self.br_jwt_token}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+        )
+        if r.status_code == 200:
+            object, created = r.json(), True
+        else:
+            object, created = {"error": r.status_code}, False
+        return object, created
+
+    def delete_table_fields(self, br_table_id, field_names):
+        object, deleted = {"status": "no fields to delete"}, True
+        for f in self.list_fields(br_table_id):
+            if f["name"] in field_names:
+                print("Deleting field... ", f["name"], f["id"])
+                url = f"{self.br_base_url}database/fields/{f['id']}/"
+                r = requests.delete(
+                    url,
+                    headers={
+                        "Authorization": f"JWT {self.br_jwt_token}",
+                        "Content-Type": "application/json"
+                    },
+                )
+                if r.status_code == 200:
+                    print(f"Deleted field {f['name']} with id: {f['id']} in {br_table_id}")
+                    object, deleted = r.json(), True
+                else:
+                    print(f"Error {r.status_code} with {br_table_id} in delete_fields")
+                    object, deleted = {"error": r.status_code}, False
+        return object, deleted
+
+    def create_table_fields(self, br_table_id, br_table_fields):
+        url = f"{self.br_base_url}database/fields/table/{br_table_id}/"
+        payload, valid = self.validate_table_fields_type(br_table_fields)
+        if valid:
+            for field in payload:
+                r = requests.post(
+                    url=url,
+                    headers={
+                        "Authorization": f"JWT {self.br_jwt_token}",
+                        "Content-Type": "application/json",
+                    },
+                    json=field,
+                )
+                if r.status_code == 200:
+                    object, created = r.json(), True
+                else:
+                    object, created = {"error": r.status_code}, False
+        else:
+            object, created = {"error": "Field type schema wrong."}, valid
+            print(object["error"], "Visit https://api.baserow.io/api/redoc/ to learn more.")
+        return object, created
+
+    def validate_table_fields_type(self, br_table_fields):
+        valid = True
+        required_keys = ["name", "type"]
+        for f in br_table_fields:
+            for k in required_keys:
+                if k not in f.keys():
+                    valid = False
+                    raise KeyError(f"missing required key: {k}")
+        valid_types = [
+            "text",
+            "long_text",
+            "number",
+            "date",
+            "boolean",
+            "link_row",
+            "formula",
+        ]
+        for f in br_table_fields:
+            if f["type"] not in valid_types:
+                valid = False
+                raise KeyError(f"invalid field type: {f['type']}")
+            if f["type"] == "formula":
+                if "formula" not in f.keys():
+                    valid = False
+                    raise KeyError("formula field missing 'formula' key")
+                elif not isinstance(f["formula"], str):
+                    valid = False
+                    raise ValueError("formula field must be a string")
+            if f["type"] == "link_row":
+                if "link_row_table_id" not in f.keys():
+                    valid = False
+                    raise KeyError(
+                        "link_row field missing 'link_row_table_id' key"
+                    )
+                elif not isinstance(
+                    f["link_row_table_id"], int
+                ):
+                    valid = False
+                    raise ValueError("link_row_table_id field must be a integer")
+        return br_table_fields, valid
+
     def __init__(
         self,
         br_user,

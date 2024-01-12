@@ -185,7 +185,7 @@ class BaseRowClient:
                     object, created = {"error": r.status_code}, False
         else:
             object, created = {"error": "Field type schema wrong."}, valid
-        print(object["error"], "Visit https://api.baserow.io/api/redoc/ to learn more.")
+            print(object["error"], "Visit https://api.baserow.io/api/redoc/ to learn more.")
         return object, created
 
     def validate_field_types(self, fields):

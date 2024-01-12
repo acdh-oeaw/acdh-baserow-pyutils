@@ -38,7 +38,7 @@ class TestBaseRowClient(unittest.TestCase):
 
     def test_002_list_tables(self):
         tables = BR_CLIENT.list_tables(DATABASE_ID)
-        self.assertEqual(len(tables), 3)
+        self.assertEqual(len(tables), 7)
 
     def test_003_fix_url(self):
         url_fixer = BR_CLIENT.url_fixer("hansi")

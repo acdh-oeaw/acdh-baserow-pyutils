@@ -8,7 +8,7 @@ a python client for baserow
 
 ## install
 
-`pip install baserow-client`
+`pip install acdh-baserow-pyutils`
 
 
 ## how to use

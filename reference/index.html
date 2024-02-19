@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>API-Documentation - acdh-tei-pyutils</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "API-Documentation";
+        var mkdocs_page_input_path = "reference.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> acdh-tei-pyutils
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">API-Documentation</a>
+    <ul class="current">
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">acdh-tei-pyutils</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">API-Documentation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="api-documentation">API Documentation</h1>
+<p>This part of the project documentation focuses on
+an <strong>information-oriented</strong> approach. Use it as a
+reference for the technical implementation of the
+<code>acdh_baserow_pyutils</code> project code.</p>
+<p>For practical examples on how to use the code of this package we'd recommend to consult the <code>tests</code> folder</p>
+<h1 id="acdh_baserow_pyutils_1">acdh_baserow_pyutils</h1>
+<p>Provides with <code>BaseRowClient</code> a class to interact with a Baserow Database</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="acdh_baserow_pyutils"></a>
+  <div class="doc doc-contents first">
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="acdh_baserow_pyutils.BaseRowClient" class="doc doc-heading">
+          <code>BaseRowClient</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+
+
+            <details class="quote">
+              <summary>Source code in <code>acdh_baserow_pyutils/__init__.py</code></summary>
+              <pre class="highlight"><code class="language-python">class BaseRowClient:
+    def get_jwt_token(self) -&gt; str:
+        """fetches a baserow auth token
+
+        Returns:
+            str: the baserow auth token
+        """
+        url = f"{self.br_base_url}user/token-auth/"
+        payload = {"password": self.br_pw, "username": self.br_user}
+        r = requests.post(url=url, json=payload)
+        return r.json()["token"]
+
+    def url_fixer(self, url: str) -&gt; str:
+        """checks if the passed in URL ends with slash and appends one if not
+
+        Args:
+            url (str): URL to check (or any other string)
+
+        Returns:
+            str: URL ending with "/"
+        """
+        if url.endswith("/"):
+            return url
+        else:
+            return f"{url}/"
+
+    def list_tables(self, br_database_id: Union[int, str]) -&gt; list:
+        """retuns the baserow api enspoint listing all tables of the given database
+
+        Args:
+            br_database_id (Union[int, str]): The ID of the database
+
+        Returns:
+            list: a list with dicts like `{'id': 100947, 'name': 'place', 'order': 2, 'database_id': 41426}`
+        """
+        db_url = f"{self.br_base_url}database/tables/database/{br_database_id}/"
+        r = requests.get(
+            url=db_url, headers={"Authorization": f"JWT {self.br_jwt_token}"}
+        )
+        return r.json()
+
+    def get_table_by_name(self, br_database_id, br_table_name):
+        tables = self.list_tables(br_database_id)
+        table_id = False
+        for x in tables:
+            if x["name"] == br_table_name:
+                table_id = str(x["id"])
+        return table_id
+
+    def list_fields(self, br_table_id):
+        url = f"{self.br_base_url}database/fields/table/{br_table_id}/"
+        r = requests.get(url, headers={"Authorization": f"JWT {self.br_jwt_token}"})
+        return r.json()
+
+    def search_rows(self, br_table_id, q, query_field_id, lookup_type="contains"):
+        url = f"{self.br_base_url}database/rows/table/{br_table_id}/?user_field_names=true&amp;filter__field_{query_field_id}__{lookup_type}={q}"  # noqa
+        r = requests.get(url, headers={"Authorization": f"JWT {self.br_jwt_token}"})
+        return r.json()
+
+    def yield_rows(self, br_table_id, filters={}):
+        br_rows_url = f"{self.br_base_url}database/rows/table/{br_table_id}/"
+        url = f"{br_rows_url}?user_field_names=true"
+        if filters:
+            for key, value in filters.items():
+                url += f"&amp;{key}={value}"
+        next_page = True
+        while next_page:
+            print(url)
+            response = None
+            result = None
+            x = None
+            response = requests.get(url, headers=self.headers)
+            result = response.json()
+            next_page = result["next"]
+            url = result["next"]
+            for x in result["results"]:
+                yield x
+
+    def dump_tables_as_json(self, br_table_id, folder_name=None, indent=0):
+        tables = self.list_tables(br_table_id)
+        file_names = []
+        for x in tables:
+            data = {x["id"]: x for x in self.yield_rows(f"{x['id']}")}
+            f_name = f"{x['name']}.json"
+            if folder_name is not None:
+                f_name = os.path.join(folder_name, f_name)
+            with open(f_name, "w") as f:
+                if indent:
+                    json.dump(data, f, ensure_ascii=False, indent=indent)
+                else:
+                    json.dump(data, f, ensure_ascii=False)
+            file_names.append(f_name)
+        return file_names
+
+    def fetch_table_field_dict(self, br_db_id):
+        print(f"fetching table and field info for {br_db_id}")
+        br_tables = self.list_tables(br_db_id)
+        table_dict = {}
+        for x in br_tables:
+            field_dict = {}
+            table_dict[x["name"]] = x
+            for f in self.list_fields(x["id"]):
+                field_dict[f["name"]] = f
+            table_dict[x["name"]]["fields"] = field_dict
+        br_table_dict = table_dict
+        return br_table_dict
+
+    def get_or_create(self, table_name, field_name, lookup_dict, q):
+        br_table_id = lookup_dict[table_name]["id"]
+        query_field_id = lookup_dict[table_name]["fields"][field_name]["id"]
+        match = self.search_rows(br_table_id, q, query_field_id, lookup_type="equal")
+        if match["count"] == 1:
+            object, created = match["results"][0], False
+        else:
+            create_url = f"{self.br_base_url}database/rows/table/{br_table_id}/?user_field_names=true"
+            item = {field_name: q}
+            r = requests.post(
+                create_url,
+                headers={
+                    "Authorization": f"Token {self.br_token}",
+                    "Content-Type": "application/json",
+                },
+                json=item,
+            )
+            object, created = r.json(), True
+        return object, created
+
+    def delete_table(self, table_id):
+        url = f"{self.br_base_url}database/tables/{table_id}/"
+        r = requests.delete(
+            url,
+            headers={
+                "Authorization": f"JWT {self.br_jwt_token}",
+                "Content-Type": "application/json",
+            },
+        )
+        if r.status_code == 204:
+            object, deleted = {"status": f"table {table_id} deleted"}, True
+        else:
+            object, deleted = {"error": r.status_code}, False
+        return object, deleted
+
+    def create_table(self, table_name, fields=None):
+        database_id = self.br_db_id
+        url = f"{self.br_base_url}database/tables/database/{database_id}/"
+        payload = {"name": table_name}
+        if fields is not None:
+            payload["data"] = fields
+            payload["first_row_header"] = True
+        r = requests.post(
+            url=url,
+            headers={
+                "Authorization": f"JWT {self.br_jwt_token}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+        )
+        if r.status_code == 200:
+            object, created = r.json(), True
+        else:
+            object, created = {"error": r.status_code}, False
+        return object, created
+
+    def delete_table_fields(self, br_table_id, field_names):
+        object, deleted = {"status": "no fields to delete"}, True
+        for f in self.list_fields(br_table_id):
+            if f["name"] in field_names:
+                print("Deleting field... ", f["name"], f["id"])
+                url = f"{self.br_base_url}database/fields/{f['id']}/"
+                r = requests.delete(
+                    url,
+                    headers={
+                        "Authorization": f"JWT {self.br_jwt_token}",
+                        "Content-Type": "application/json",
+                    },
+                )
+                if r.status_code == 200:
+                    print(
+                        f"Deleted field {f['name']} with id: {f['id']} in {br_table_id}"
+                    )
+                    object, deleted = r.json(), True
+                else:
+                    print(f"Error {r.status_code} with {br_table_id} in delete_fields")
+                    object, deleted = {"error": r.status_code}, False
+        return object, deleted
+
+    def create_table_fields(self, br_table_id, br_table_fields):
+        url = f"{self.br_base_url}database/fields/table/{br_table_id}/"
+        payload, valid = self.validate_table_fields_type(br_table_fields)
+        if valid:
+            for field in payload:
+                r = requests.post(
+                    url=url,
+                    headers={
+                        "Authorization": f"JWT {self.br_jwt_token}",
+                        "Content-Type": "application/json",
+                    },
+                    json=field,
+                )
+                if r.status_code == 200:
+                    object, created = r.json(), True
+                else:
+                    object, created = {"error": r.status_code}, False
+        else:
+            object, created = {"error": "Field type schema wrong."}, valid
+            print(
+                object["error"],
+                "Visit https://api.baserow.io/api/redoc/ to learn more.",
+            )
+        return object, created
+
+    def validate_table_fields_type(self, br_table_fields):
+        valid = True
+        required_keys = ["name", "type"]
+        for f in br_table_fields:
+            for k in required_keys:
+                if k not in f.keys():
+                    valid = False
+                    raise KeyError(f"missing required key: {k}")
+        valid_types = [
+            "text",
+            "long_text",
+            "number",
+            "date",
+            "boolean",
+            "link_row",
+            "formula",
+        ]
+        for f in br_table_fields:
+            if f["type"] not in valid_types:
+                valid = False
+                raise KeyError(f"invalid field type: {f['type']}")
+            if f["type"] == "formula":
+                if "formula" not in f.keys():
+                    valid = False
+                    raise KeyError("formula field missing 'formula' key")
+                elif not isinstance(f["formula"], str):
+                    valid = False
+                    raise ValueError("formula field must be a string")
+            if f["type"] == "link_row":
+                if "link_row_table_id" not in f.keys():
+                    valid = False
+                    raise KeyError("link_row field missing 'link_row_table_id' key")
+                elif not isinstance(f["link_row_table_id"], int):
+                    valid = False
+                    raise ValueError("link_row_table_id field must be a integer")
+        return br_table_fields, valid
+
+    def __init__(
+        self,
+        br_user,
+        br_pw,
+        br_token,
+        br_base_url="https://api.baserow.io/api/",
+        br_db_id=None,
+    ):
+        self.br_user = br_user
+        self.br_pw = br_pw
+        self.br_token = br_token
+        self.br_base_url = self.url_fixer(br_base_url)
+        self.br_jwt_token = self.get_jwt_token()
+        self.headers = {
+            "Authorization": f"Token {self.br_token}",
+            "Content-Type": "application/json",
+        }
+        if br_db_id:
+            self.br_db_id = br_db_id
+            self.br_table_dict = self.fetch_table_field_dict(self.br_db_id)
+
+        else:
+            self.br_db_id = None
+            self.br_table_dict = None</code></pre>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="acdh_baserow_pyutils.BaseRowClient.get_jwt_token" class="doc doc-heading">
+          <code class="highlight language-python">get_jwt_token()</code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>fetches a baserow auth token</p>
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+    <th class="field-name">Returns:</th>
+    <td class="field-body">
+      <ul class="first simple">
+          <li>
+<b><code>str</code></b>(                <code>str</code>
+)            –
+            <div class="doc-md-description">
+              <p>the baserow auth token</p>
+            </div>
+          </li>
+      </ul>
+    </td>
+    </tr>
+  </tbody>
+</table>
+          <details class="quote">
+            <summary>Source code in <code>acdh_baserow_pyutils/__init__.py</code></summary>
+            <pre class="highlight"><code class="language-python">def get_jwt_token(self) -&gt; str:
+    """fetches a baserow auth token
+
+    Returns:
+        str: the baserow auth token
+    """
+    url = f"{self.br_base_url}user/token-auth/"
+    payload = {"password": self.br_pw, "username": self.br_user}
+    r = requests.post(url=url, json=payload)
+    return r.json()["token"]</code></pre>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="acdh_baserow_pyutils.BaseRowClient.list_tables" class="doc doc-heading">
+          <code class="highlight language-python">list_tables(br_database_id)</code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>retuns the baserow api enspoint listing all tables of the given database</p>
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>br_database_id</code></b>
+                  (<code><span title="typing.Union">Union</span>[int, str]</code>)
+              –
+              <div class="doc-md-description">
+                <p>The ID of the database</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+    <th class="field-name">Returns:</th>
+    <td class="field-body">
+      <ul class="first simple">
+          <li>
+<b><code>list</code></b>(                <code>list</code>
+)            –
+            <div class="doc-md-description">
+              <p>a list with dicts like <code>{'id': 100947, 'name': 'place', 'order': 2, 'database_id': 41426}</code></p>
+            </div>
+          </li>
+      </ul>
+    </td>
+    </tr>
+  </tbody>
+</table>
+          <details class="quote">
+            <summary>Source code in <code>acdh_baserow_pyutils/__init__.py</code></summary>
+            <pre class="highlight"><code class="language-python">def list_tables(self, br_database_id: Union[int, str]) -&gt; list:
+    """retuns the baserow api enspoint listing all tables of the given database
+
+    Args:
+        br_database_id (Union[int, str]): The ID of the database
+
+    Returns:
+        list: a list with dicts like `{'id': 100947, 'name': 'place', 'order': 2, 'database_id': 41426}`
+    """
+    db_url = f"{self.br_base_url}database/tables/database/{br_database_id}/"
+    r = requests.get(
+        url=db_url, headers={"Authorization": f"JWT {self.br_jwt_token}"}
+    )
+    return r.json()</code></pre>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="acdh_baserow_pyutils.BaseRowClient.url_fixer" class="doc doc-heading">
+          <code class="highlight language-python">url_fixer(url)</code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>checks if the passed in URL ends with slash and appends one if not</p>
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>url</code></b>
+                  (<code>str</code>)
+              –
+              <div class="doc-md-description">
+                <p>URL to check (or any other string)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+    <th class="field-name">Returns:</th>
+    <td class="field-body">
+      <ul class="first simple">
+          <li>
+<b><code>str</code></b>(                <code>str</code>
+)            –
+            <div class="doc-md-description">
+              <p>URL ending with "/"</p>
+            </div>
+          </li>
+      </ul>
+    </td>
+    </tr>
+  </tbody>
+</table>
+          <details class="quote">
+            <summary>Source code in <code>acdh_baserow_pyutils/__init__.py</code></summary>
+            <pre class="highlight"><code class="language-python">def url_fixer(self, url: str) -&gt; str:
+    """checks if the passed in URL ends with slash and appends one if not
+
+    Args:
+        url (str): URL to check (or any other string)
+
+    Returns:
+        str: URL ending with "/"
+    """
+    if url.endswith("/"):
+        return url
+    else:
+        return f"{url}/"</code></pre>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+
+</div>
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="acdh_baserow_pyutils.get_related_table_info" class="doc doc-heading">
+          <code class="highlight language-python">get_related_table_info(table_name, field_name, table_field_dict)</code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>returns the name and the id of the related table</p>
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>table_name</code></b>
+                  (<code>str</code>)
+              –
+              <div class="doc-md-description">
+                <p>the name of current table e.g. "courses"</p>
+              </div>
+            </li>
+            <li>
+              <b><code>field_name</code></b>
+                  (<code>str</code>)
+              –
+              <div class="doc-md-description">
+                <p>the name of the current field e.g. "university"</p>
+              </div>
+            </li>
+            <li>
+              <b><code>table_field_dict</code></b>
+                  (<code>dict</code>)
+              –
+              <div class="doc-md-description">
+                <p>a dict providing information of the tables and fields of the database        as returned by <code>br_client.fetch_table_field_dict(BASEROW_DB_ID)</code></p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+    <th class="field-name">Returns:</th>
+    <td class="field-body">
+      <ul class="first simple">
+          <li>
+<b><code>tuple</code></b>(                <code>tuple</code>
+)            –
+            <div class="doc-md-description">
+              <p>returns the ID and the name of the related table</p>
+            </div>
+          </li>
+      </ul>
+    </td>
+    </tr>
+  </tbody>
+</table>
+          <details class="quote">
+            <summary>Source code in <code>acdh_baserow_pyutils/__init__.py</code></summary>
+            <pre class="highlight"><code class="language-python">def get_related_table_info(
+    table_name: str, field_name: str, table_field_dict: dict
+) -&gt; tuple:
+    """returns the name and the id of the related table
+
+    Args:
+        table_name (str): the name of current table e.g. "courses"
+        field_name (str): the name of the current field e.g. "university"
+        table_field_dict (dict): a dict providing information of the tables and fields of the database\
+        as returned by `br_client.fetch_table_field_dict(BASEROW_DB_ID)`
+
+    Returns:
+        tuple: returns the ID and the name of the related table
+    """
+    field_dict = table_field_dict[table_name]["fields"][field_name]
+    related_table_id = field_dict["link_row_table_id"]
+    for _, value in table_field_dict.items():
+        if value["id"] == related_table_id:
+            related_table_name = value["name"]
+            break
+    return related_table_id, related_table_name</code></pre>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

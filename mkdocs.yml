@@ -1,0 +1,10 @@
+site_name: acdh-tei-pyutils
+
+theme: readthedocs
+
+plugins:
+  - mkdocstrings
+
+nav:
+- Home: README.md
+- API-Documentation: reference.md

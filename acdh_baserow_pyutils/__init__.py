@@ -1,22 +1,67 @@
+from typing import Union
 import json
 import os
 import requests
 
 
+def get_related_table_info(
+    table_name: str, field_name: str, table_field_dict: dict
+) -> tuple:
+    """returns the name and the id of the related table
+
+    Args:
+        table_name (str): the name of current table e.g. "courses"
+        field_name (str): the name of the current field e.g. "university"
+        table_field_dict (dict): a dict providing information of the tables and fields of the database\
+        as returned by `br_client.fetch_table_field_dict(BASEROW_DB_ID)`
+
+    Returns:
+        tuple: returns the ID and the name of the related table
+    """
+    field_dict = table_field_dict[table_name]["fields"][field_name]
+    related_table_id = field_dict["link_row_table_id"]
+    for _, value in table_field_dict.items():
+        if value["id"] == related_table_id:
+            related_table_name = value["name"]
+            break
+    return related_table_id, related_table_name
+
+
 class BaseRowClient:
-    def get_jwt_token(self):
+    def get_jwt_token(self) -> str:
+        """fetches a baserow auth token
+
+        Returns:
+            str: the baserow auth token
+        """
         url = f"{self.br_base_url}user/token-auth/"
         payload = {"password": self.br_pw, "username": self.br_user}
         r = requests.post(url=url, json=payload)
         return r.json()["token"]
 
-    def url_fixer(self, url):
+    def url_fixer(self, url: str) -> str:
+        """checks if the passed in URL ends with slash and appends one if not
+
+        Args:
+            url (str): URL to check (or any other string)
+
+        Returns:
+            str: URL ending with "/"
+        """
         if url.endswith("/"):
             return url
         else:
             return f"{url}/"
 
-    def list_tables(self, br_database_id):
+    def list_tables(self, br_database_id: Union[int, str]) -> list:
+        """retuns the baserow api enspoint listing all tables of the given database
+
+        Args:
+            br_database_id (Union[int, str]): The ID of the database
+
+        Returns:
+            list: a list with dicts like `{'id': 100947, 'name': 'place', 'order': 2, 'database_id': 41426}`
+        """
         db_url = f"{self.br_base_url}database/tables/database/{br_database_id}/"
         r = requests.get(
             url=db_url, headers={"Authorization": f"JWT {self.br_jwt_token}"}
@@ -115,7 +160,7 @@ class BaseRowClient:
             url,
             headers={
                 "Authorization": f"JWT {self.br_jwt_token}",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             },
         )
         if r.status_code == 204:
@@ -155,11 +200,13 @@ class BaseRowClient:
                     url,
                     headers={
                         "Authorization": f"JWT {self.br_jwt_token}",
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
                     },
                 )
                 if r.status_code == 200:
-                    print(f"Deleted field {f['name']} with id: {f['id']} in {br_table_id}")
+                    print(
+                        f"Deleted field {f['name']} with id: {f['id']} in {br_table_id}"
+                    )
                     object, deleted = r.json(), True
                 else:
                     print(f"Error {r.status_code} with {br_table_id} in delete_fields")
@@ -185,7 +232,10 @@ class BaseRowClient:
                     object, created = {"error": r.status_code}, False
         else:
             object, created = {"error": "Field type schema wrong."}, valid
-            print(object["error"], "Visit https://api.baserow.io/api/redoc/ to learn more.")
+            print(
+                object["error"],
+                "Visit https://api.baserow.io/api/redoc/ to learn more.",
+            )
         return object, created
 
     def validate_table_fields_type(self, br_table_fields):
@@ -219,12 +269,8 @@ class BaseRowClient:
             if f["type"] == "link_row":
                 if "link_row_table_id" not in f.keys():
                     valid = False
-                    raise KeyError(
-                        "link_row field missing 'link_row_table_id' key"
-                    )
-                elif not isinstance(
-                    f["link_row_table_id"], int
-                ):
+                    raise KeyError("link_row field missing 'link_row_table_id' key")
+                elif not isinstance(f["link_row_table_id"], int):
                     valid = False
                     raise ValueError("link_row_table_id field must be a integer")
         return br_table_fields, valid

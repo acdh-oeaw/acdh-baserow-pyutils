@@ -1,0 +1,6 @@
+[run]
+    branch = True
+    omit = 
+        tests/test_baserow_client.py
+        tests/config.py
+        tests/

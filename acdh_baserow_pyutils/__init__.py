@@ -274,6 +274,28 @@ class BaseRowClient:
                     valid = False
                     raise ValueError("link_row_table_id field must be a integer")
         return br_table_fields, valid
+    
+    def patch_row(self, table_id: str, row_id: str, payload: dict) -> dict:
+        """sends a PATCH request for the given row
+
+        Args:
+            table_id (str): The ID of the table
+            row_id (str): The ID of the row
+            payload (dict): The patch-data, see https://api.baserow.io/api/redoc/#tag/Database-table-rows/operation/update_database_table_row
+
+        Returns:
+            dict: The JSON response of the updated row
+        """
+
+        url =  f"{self.br_base_url}database/table/{table_id}/{row_id}"
+        r = requests.patch(
+            url,
+            headers={
+                "Authorization": f"Token {self.br_token}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+        )
 
     def __init__(
         self,

@@ -6,4 +6,4 @@ exclude =
     .tox
     build
     dist
-    env
+    venv

@@ -287,7 +287,8 @@ class BaseRowClient:
             dict: The JSON response of the updated row
         """
 
-        url =  f"{self.br_base_url}database/table/{table_id}/{row_id}"
+        url =  f"{self.br_base_url}database/rows/table/{table_id}/{row_id}/?user_field_names=true"
+        print(url)
         r = requests.patch(
             url,
             headers={
@@ -296,6 +297,7 @@ class BaseRowClient:
             },
             json=payload,
         )
+        return r.json()
 
     def __init__(
         self,

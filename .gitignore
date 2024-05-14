@@ -136,3 +136,4 @@ hansi.csv
 search.json
 play.py
 docs/README.md
+json_dumps/*.json

@@ -211,3 +211,17 @@ class TestBaseRowClient(unittest.TestCase):
             "person", "born_in", table_field_dict
         )
         self.assertEqual(related_table_name[1], "place")
+
+    def test_014_path_row(self):
+        table_id = "100948"
+        row_id = "1"
+        patched_value = 1
+        payload = {"died_in": [patched_value]}
+        patched = BR_CLIENT.patch_row(table_id, row_id, payload=payload)
+        death_place = patched["died_in"][0]["id"]
+        self.assertEqual(death_place, patched_value)
+        patched_value = 2
+        payload = {"died_in": [patched_value]}
+        patched = BR_CLIENT.patch_row(table_id, row_id, payload=payload)
+        death_place = patched["died_in"][0]["id"]
+        self.assertEqual(death_place, patched_value)

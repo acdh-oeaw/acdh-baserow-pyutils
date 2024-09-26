@@ -113,7 +113,7 @@ class BaseRowClient:
             f_name = f"{x['name']}.json"
             if folder_name is not None:
                 f_name = os.path.join(folder_name, f_name)
-            with open(f_name, "w") as f:
+            with open(f_name, "w", encoding="utf-8") as f:
                 if indent:
                     json.dump(data, f, ensure_ascii=False, indent=indent)
                 else:
@@ -281,12 +281,11 @@ class BaseRowClient:
         Args:
             table_id (str): The ID of the table
             row_id (str): The ID of the row
-            payload (dict): The patch-data, see
-            https://api.baserow.io/api/redoc/#tag/Database-table-rows/operation/update_database_table_row
+            payload (dict): The patch-data, see https://api.baserow.io/api/redoc/#tag/Database-table-rows/operation/update_database_table_row
 
         Returns:
             dict: The JSON response of the updated row
-        """
+        """  # noqa:
 
         url = f"{self.br_base_url}database/rows/table/{table_id}/{row_id}/?user_field_names=true"
         print(url)

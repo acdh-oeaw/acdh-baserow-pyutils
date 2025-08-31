@@ -1,6 +1,7 @@
-from typing import Union
 import json
 import os
+from typing import Union
+
 import requests
 
 

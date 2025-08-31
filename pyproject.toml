@@ -1,0 +1,31 @@
+[build-system]
+requires = ["uv_build>=0.8.0,<0.9"]
+build-backend = "uv_build"
+
+[project]
+name = "acdh-baserow-pyutils"
+version = "0.10.0"
+description = "API client for Baserow"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Peter Andorfer", email = "peter.andorfer@oeaw.ac.at" },
+    { name = "Daniel Elsner", email = "daniel.elsner@oeaw.ac.at" },
+]
+keywords = ["Baserow", "api client"]
+requires-python = ">=3.9"
+dependencies = [
+    "requests>=2.32.5",
+]
+[project.urls]
+Repository = "https://github.com/acdh-oeaw/acdh-baserow-pyutils"
+Documentation = "https://acdh-oeaw.github.io/acdh-baserow-pyutils/"
+
+[dependency-groups]
+dev = [
+    "coverage>=7.10.6",
+    "mkdocs>=1.6.1",
+    "mkdocstrings[python]>=0.30.0",
+    "pytest>=8.4.1",
+    "ruff>=0.12.11",
+]

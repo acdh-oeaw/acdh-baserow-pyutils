@@ -7,29 +7,31 @@ jobs:
   test:
     name: Test Application
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.9"
+          - "3.11"
+          - "3.12"
+          - "3.13"
     env:
       BASEROW_TOKEN: ${{secrets.BASEROW_TOKEN}}
       BASEROW_USER: ${{secrets.BASEROW_USER}}
       BASEROW_PW: ${{secrets.BASEROW_PW}}
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - uses: actions/checkout@v5
+    - name: Install uv and set the python version
+      uses: astral-sh/setup-uv@v6
       with:
-        python-version: "3.11"
-    - name: Install dependencies
-      run: |
-        pip install --upgrade --upgrade-strategy eager -r requirements_dev.txt
-    - name: Install actual package
-      run: |
-        pip install -e .
+        python-version: ${{ matrix.python-version }}
     - name: Run tests
-      run: coverage run -m pytest -v
+      run: uv run coverage run -m pytest -v
     - name: Create Coverage Report
-      run: coverage xml
+      run: uv run coverage xml
     - name: "Upload coverage to Codecov"
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
-        file: ./coverage.xml
+        files: ./coverage.xml
+        token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: false
         verbose: true

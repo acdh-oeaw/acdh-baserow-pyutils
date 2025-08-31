@@ -1,10 +1,11 @@
-import unittest
-import os
-import shutil
 import glob
 import json
+import os
+import shutil
+import unittest
 
 from acdh_baserow_pyutils import BaseRowClient, get_related_table_info
+
 from .config import BASEROW_TABLE_MAPPING
 
 TABLE_ID = "100948"

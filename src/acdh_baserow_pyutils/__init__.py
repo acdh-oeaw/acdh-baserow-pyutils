@@ -70,6 +70,15 @@ class BaseRowClient:
         return r.json()
 
     def get_table_by_name(self, br_database_id, br_table_name):
+        """
+        Retrieve the table ID for a table with the specified name within a database.
+        Args:
+            br_database_id: The ID of the Baserow database to search in
+            br_table_name (str): The name of the table to find
+        Returns:
+            str or False: The table ID as a string if found, False if not found
+        """
+
         tables = self.list_tables(br_database_id)
         table_id = False
         for x in tables:
@@ -78,11 +87,34 @@ class BaseRowClient:
         return table_id
 
     def list_fields(self, br_table_id):
+        """
+        Retrieve a list of all fields for a specified Baserow table.
+        Args:
+            br_table_id (int): The ID of the Baserow table to retrieve fields from.
+        Returns:
+            dict: JSON response containing the list of fields and their metadata
+                  from the Baserow API.
+        """
+
         url = f"{self.br_base_url}database/fields/table/{br_table_id}/"
         r = requests.get(url, headers={"Authorization": f"JWT {self.br_jwt_token}"})
         return r.json()
 
     def search_rows(self, br_table_id, q, query_field_id, lookup_type="contains"):
+        """
+        Search for rows in a Baserow table based on a query string and field.
+        Args:
+            br_table_id (int): The ID of the Baserow table to search in.
+            q (str): The query string to search for.
+            query_field_id (int): The ID of the field to search within.
+            lookup_type (str, optional): The type of lookup to perform.
+                Defaults to "contains". Other options may include "exact",
+                "starts_with", "ends_with", etc.
+        Returns:
+            dict: JSON response from the Baserow API containing the search results.
+                Typically includes a list of matching rows and metadata.
+        """
+
         url = f"{self.br_base_url}database/rows/table/{br_table_id}/?user_field_names=true&filter__field_{query_field_id}__{lookup_type}={q}"  # noqa
         r = requests.get(url, headers={"Authorization": f"JWT {self.br_jwt_token}"})
         return r.json()
@@ -136,6 +168,22 @@ class BaseRowClient:
         return br_table_dict
 
     def get_or_create(self, table_name, field_name, lookup_dict, q):
+        """
+        Get an existing row or create a new one in a Baserow table.
+        Searches for a row in the specified table where the given field matches the query value.
+        If exactly one matching row is found, returns that row. If no matching row is found,
+        creates a new row with the specified field value.
+        Args:
+            table_name (str): Name of the table to search/create in
+            field_name (str): Name of the field to search by and set value for
+            lookup_dict (dict): Dictionary containing table and field metadata including IDs
+            q (str): Query value to search for and use when creating new row
+        Returns:
+            tuple: A tuple containing:
+                - object (dict): The found or created row data
+                - created (bool): True if a new row was created, False if existing row was found
+        """
+
         br_table_id = lookup_dict[table_name]["id"]
         query_field_id = lookup_dict[table_name]["fields"][field_name]["id"]
         match = self.search_rows(br_table_id, q, query_field_id, lookup_type="equal")
@@ -299,6 +347,45 @@ class BaseRowClient:
             json=payload,
         )
         return r.json()
+
+    def batch_update_rows(self, table_id: str, payload: list) -> dict:
+        """Sends PATCH requests for the given rows in batches of 190.
+
+        Args:
+            table_id (str): The ID of the table
+            payload (list): The patch-data for multiple rows
+
+        Returns:
+            dict: A dict with keys "updated_rows" with updated row objects and "errors".
+        """
+        url = f"{self.br_base_url}database/rows/table/{table_id}/batch/?user_field_names=true"
+        batch_size = 199
+        updated_rows = []
+        errors = []
+        print(f"start updating {len(payload)} rows")
+        for i in range(0, len(payload), batch_size):
+            batch = payload[i : i + batch_size]  # noqa
+            r = requests.patch(
+                url,
+                headers={
+                    "Authorization": f"Token {self.br_token}",
+                    "Content-Type": "application/json",
+                },
+                json={"items": batch},
+            )
+            try:
+                resp = r.json()
+            except Exception:
+                errors.append(
+                    {"error": "Invalid JSON response", "status_code": r.status_code}
+                )
+                continue
+            try:
+                updated_rows.extend(resp["items"])
+            except KeyError:
+                updated_rows.extend([])
+                errors.append(resp["error"])
+        return {"updated_rows": updated_rows, "errors": errors}
 
     def __init__(
         self,

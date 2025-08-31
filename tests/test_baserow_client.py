@@ -1,8 +1,10 @@
+import csv
 import glob
 import json
 import os
 import shutil
 import unittest
+from datetime import datetime
 
 from acdh_baserow_pyutils import BaseRowClient, get_related_table_info
 
@@ -39,7 +41,7 @@ class TestBaseRowClient(unittest.TestCase):
 
     def test_002_list_tables(self):
         tables = BR_CLIENT.list_tables(DATABASE_ID)
-        self.assertEqual(len(tables), 3)
+        self.assertEqual(len(tables), 4)
 
     def test_003_fix_url(self):
         url_fixer = BR_CLIENT.url_fixer("hansi")
@@ -226,3 +228,19 @@ class TestBaseRowClient(unittest.TestCase):
         patched = BR_CLIENT.patch_row(table_id, row_id, payload=payload)
         death_place = patched["died_in"][0]["id"]
         self.assertEqual(death_place, patched_value)
+
+    def test_015_batch_update(self):
+        table_id = "100948"
+        current_time = datetime.now()
+        data = os.path.join("tests", "batch_update.csv")
+        items = []
+        with open(data, encoding="utf-8") as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                try:
+                    item = {"id": int(row[0]), "Projekt": f"foo {current_time}"}
+                except ValueError:
+                    continue
+                items.append(item)
+        items = items + [{"id": 99999, "Projekt": "lakdsfj"}]
+        BR_CLIENT.batch_update_rows(table_id, items)

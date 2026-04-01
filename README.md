@@ -19,16 +19,22 @@ Have a look into `tests/test_baserow_client.py`
 
 ```python
 import os
-from acdh_baserow_utils import BaseRowClient
+from acdh_baserow_pyutils import BaseRowClient
 
 # store baserow credentials as ENV-Variables
 BASEROW_USER = os.environ.get("BASEROW_USER")
 BASEROW_PW = os.environ.get("BASEROW_PW")
 BASEROW_TOKEN = os.environ.get("BASEROW_TOKEN") # you need to create a token via baserow
 DATABASE_ID = "41426" # you can get this ID from Baserow
+BASEROW_URL="https://my-custom-baserow/api/
 
-# initialize the client
+# initialize the client to baserows hosted instance
 br_client = BaseRowClient(BASEROW_USER, BASEROW_PW, BASEROW_TOKEN)
+
+# to initialize the client to some other baserow instance, you need to pass in br_base_url=BASEROW_URL
+
+br_client = BaseRowClient(BASEROW_USER, BASEROW_PW, BASEROW_TOKEN, br_base_url="https://api.baserow.io/api/",)
+
 
 # writes all tables from Database as json.files into a folder 'out' (the folder needs to exist!) and returns a list of the file names
 files = br_client.dump_tables_as_json(DATABASE_ID, folder_name='out')
